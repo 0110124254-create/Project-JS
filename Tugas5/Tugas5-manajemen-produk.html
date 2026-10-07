@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manajemen Produk</title>
+    <style>
+      :root {
+        --bg: #f4f7f6;
+        --panel: #ffffff;
+        --panel-soft: #eef7f5;
+        --line: #d9e3df;
+        --text: #1d2a27;
+        --muted: #5e6d69;
+        --accent: #0f766e;
+        --accent-dark: #0b5d57;
+        --danger: #b42318;
+        --danger-soft: #fff1f1;
+        --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #eef9f7 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 40px auto;
+        padding: 0 18px 48px;
+      }
+
+      .header {
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 2vw, 2.5rem);
+      }
+
+      .header p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr auto;
+        gap: 14px;
+        align-items: end;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 0.95rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #f9fbfa;
+        color: var(--text);
+        font-size: 1rem;
+      }
+
+      input:focus {
+        outline: 3px solid rgba(15, 118, 110, 0.14);
+        border-color: var(--accent);
+      }
+
+      button {
+        appearance: none;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.98rem;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        color: white;
+        font-weight: 700;
+      }
+
+      .secondary {
+        background: var(--panel-soft);
+        color: var(--accent);
+        border: 1px solid var(--line);
+        font-weight: 700;
+      }
+
+      .danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border: 1px solid rgba(180, 35, 24, 0.15);
+        font-weight: 700;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 620px;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 0.82rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      td.harga {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+      }
+
+      .checkbox-cell {
+        width: 34px;
+      }
+
+      .checkbox-cell input {
+        width: 18px;
+        height: 18px;
+      }
+
+      .empty {
+        padding: 18px 10px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 700px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Manajemen Produk</h1>
+        <p>Tambah, hapus, dan lihat daftar produk toko online.</p>
+      </header>
+
+      <section class="card">
+        <h2>Tambah Produk</h2>
+        <form id="formProduk">
+          <div class="form-grid">
+            <label>
+              Nama Produk
+              <input id="namaProduk" type="text" placeholder="Contoh: Keyboard" required />
+            </label>
+            <label>
+              Harga (Rp)
+              <input id="hargaProduk" type="number" min="0" placeholder="350000" required />
+            </label>
+            <button class="primary" type="submit">Tambah</button>
+          </div>
+        </form>
+        <div id="status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <h2>Daftar Produk</h2>
+        <div class="toolbar">
+          <button id="btnTampil" class="secondary" type="button">Tampilkan semua</button>
+          <button id="btnHapusTerpilih" class="danger" type="button">Hapus yang dicentang</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-cell"></th>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Harga</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="daftarProduk"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      let produkList = [
+        { id: 1, nama: 'Laptop', harga: 12000000 },
+        { id: 2, nama: 'Smartphone', harga: 5000000 },
+        { id: 3, nama: 'Headphone', harga: 850000 },
+        { id: 4, nama: 'Smartwatch', harga: 2300000 },
+        { id: 5, nama: 'Mouse', harga: 250000 }
+      ];
+
+      const statusEl = document.getElementById('status');
+      const daftarProdukEl = document.getElementById('daftarProduk');
+      const formProduk = document.getElementById('formProduk');
+      const namaProdukInput = document.getElementById('namaProduk');
+      const hargaProdukInput = document.getElementById('hargaProduk');
+
+      const formatRupiah = (nilai) =>
+        new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0
+        }).format(nilai);
+
+      function setStatus(teks) {
+        statusEl.textContent = teks;
+      }
+
+      function tambahProduk(id, nama, harga) {
+        produkList = [...produkList, { id, nama, harga }];
+        console.log(`Produk ditambahkan: ${nama}`);
+      }
+
+      function hapusProduk(...ids) {
+        const idsSet = new Set(ids.map(Number));
+        const sebelum = produkList.length;
+        produkList = produkList.filter(({ id }) => !idsSet.has(id));
+        console.log(`Dihapus ${sebelum - produkList.length} produk.`);
+      }
+
+      function tampilkanProduk() {
+        daftarProdukEl.innerHTML = '';
+
+        if (produkList.length === 0) {
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 5;
+          cell.className = 'empty';
+          cell.textContent = 'Belum ada produk. Tambahkan lewat formulir di atas.';
+          row.appendChild(cell);
+          daftarProdukEl.appendChild(row);
+          return;
+        }
+
+        for (const { id, nama, harga } of produkList) {
+          const row = document.createElement('tr');
+
+          const checkboxCell = document.createElement('td');
+          checkboxCell.className = 'checkbox-cell';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = String(id);
+          checkbox.className = 'pilih-produk';
+          checkbox.setAttribute('aria-label', `Pilih produk ${nama}`);
+          checkboxCell.appendChild(checkbox);
+          row.appendChild(checkboxCell);
+
+          const idCell = document.createElement('td');
+          idCell.textContent = id;
+          row.appendChild(idCell);
+
+          const namaCell = document.createElement('td');
+          namaCell.textContent = nama;
+          row.appendChild(namaCell);
+
+          const hargaCell = document.createElement('td');
+          hargaCell.className = 'harga';
+          hargaCell.textContent = formatRupiah(harga);
+          row.appendChild(hargaCell);
+
+          const aksiCell = document.createElement('td');
+          const hapusBtn = document.createElement('button');
+          hapusBtn.type = 'button';
+          hapusBtn.className = 'danger';
+          hapusBtn.dataset.id = String(id);
+          hapusBtn.textContent = 'Hapus';
+          aksiCell.appendChild(hapusBtn);
+          row.appendChild(aksiCell);
+
+          daftarProdukEl.appendChild(row);
+        }
+      }
+
+      formProduk.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const nama = namaProdukInput.value.trim();
+        const harga = Number(hargaProdukInput.value);
+
+        if (!nama || harga < 0 || !Number.isFinite(harga)) {
+          setStatus('Nama dan harga harus diisi dengan benar.');
+          return;
+        }
+
+        const idBaru = produkList.reduce((maxId, { id }) => Math.max(maxId, id), 0) + 1;
+        tambahProduk(idBaru, nama, harga);
+        formProduk.reset();
+        tampilkanProduk();
+        setStatus(`Produk "${nama}" berhasil ditambahkan dengan ID ${idBaru}.`);
+      });
+
+      document.getElementById('daftarProduk').addEventListener('click', (event) => {
+        const tombol = event.target.closest('button[data-id]');
+        if (!tombol) return;
+
+        const id = Number(tombol.dataset.id);
+        hapusProduk(id);
+        tampilkanProduk();
+        setStatus('Produk berhasil dihapus.');
+      });
+
+      document.getElementById('btnHapusTerpilih').addEventListener('click', () => {
+        const ids = [...document.querySelectorAll('.pilih-produk:checked')].map((item) => Number(item.value));
+
+        if (ids.length === 0) {
+          setStatus('Pilih produk yang ingin dihapus.');
+          return;
+        }
+
+        hapusProduk(...ids);
+        tampilkanProduk();
+        setStatus(`${ids.length} produk berhasil dihapus.`);
+      });
+
+      document.getElementById('btnTampil').addEventListener('click', () => {
+        tampilkanProduk();
+        setStatus(`Menampilkan ${produkList.length} produk.`);
+      });
+
+      tampilkanProduk();
+    </script>
+  </body>
+</html>
